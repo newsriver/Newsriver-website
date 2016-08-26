@@ -8,13 +8,8 @@ def marathonURL = 'http://46.4.71.105:8080/'
 
 node {
 
-    sh 'gradle clean'
-
     stage 'checkout project'
     checkout scm
-    stage 'set-up project'
-    writeFile file: 'settings.gradle', text: '''rootProject.name = \'''' + projectName + '''\''''
-
 
     deployDockerImage(projectName, dockerRegistry)
     restartDockerContainer(marathonAppId, projectName, dockerRegistry, marathonURL)
