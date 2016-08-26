@@ -32,16 +32,12 @@ def deployDockerImage(projectName, dockerRegistry) {
     stage 'build'
     initDocker()
 
-
-
     docker.withRegistry("https://$dockerRegistry/") {
         stage 'build docker image'
         def image = docker.build("$projectName:latest")
         stage 'upload docker image'
         image.push(env.BUILD_NUMBER)
     }
-
-
 }
 
 
