@@ -21,8 +21,7 @@
     <!-- Custom Fonts -->
     <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <link href="http://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
-    <link href="http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet"
-          type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -33,345 +32,235 @@
 
     <!-- Google Analytics -->
     <script>
- (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
- (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
- m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
- })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+        (function(i, s, o, g, r, a, m) {
+            i['GoogleAnalyticsObject'] = r;
+            i[r] = i[r] || function() {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date();
+            a = s.createElement(o),
+                m = s.getElementsByTagName(o)[0];
+            a.async = 1;
+            a.src = g;
+            m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
 
- ga('create', 'UA-81261143-1', 'auto');
- ga('send', 'pageview');
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        ga('create', 'UA-81261143-1', 'auto');
+        ga('send', 'pageview');
     </script>
 
 
     <script type="text/javascript">
-       var _buffer = [];
-       var _searchPhrase = "";
-       var _wsStream = null;
-       var _wsLookup = null;
-       var _bufferStream = [];
-       var _bufferLookup = [];
-
-       function setSearch() {
-           var searchPhrase = document.getElementById("serarchPhrase").value;
-           _searchPhrase = searchPhrase;
-           //document.getElementById("streamOutput").innerHTML = "";
+        var _buffer = [];
+        var _searchPhrase = "";
+        var _wsStream = null;
+        var _wsLookup = null;
+        var _bufferStream = [];
+        var _bufferLookup = [];
+
+        function setSearch() {
+            var searchPhrase = document.getElementById("serarchPhrase").value;
+            _searchPhrase = searchPhrase;
+            //document.getElementById("streamOutput").innerHTML = "";
 
 
-           var articleRequerst = {};
-           articleRequerst.limit = 25;
-           articleRequerst.query = _searchPhrase;
-           _bufferStream.splice(0, _bufferStream.length);
-           if (_wsStream != null) {
-               _wsStream.send(JSON.stringify(articleRequerst));
-           }
+            var articleRequerst = {};
+            articleRequerst.limit = 25;
+            articleRequerst.query = _searchPhrase;
+            _bufferStream.splice(0, _bufferStream.length);
+            if (_wsStream != null) {
+                _wsStream.send(JSON.stringify(articleRequerst));
+            }
 
-       }
+        }
 
-       function setLookup() {
-           var url = document.getElementById("lookupURL").value;
-           _bufferLookup.splice(0, _bufferLookup.length);
-           if (_wsLookup != null) {
-               _wsLookup.send(url);
-           }
-
-       }
-
-       function loadSockets() {
-           webSocketStream(_bufferStream);
-           webSocketLookup(_bufferLookup);
-       }
-
-       function webSocketStream(_buffer) {
-
-           if ("WebSocket" in window) {
-               // Let us open a web socket
-               var ws = new WebSocket("wss://api.newsriver.io/streamWebSocket");
-               //var ws = new WebSocket("ws://localhost:8080/streamWebSocket");
-
-               ws.onopen = function() {
-                   // Web Socket is connected, send data using send()
-                   _wsStream = ws;
-                   setSearch();
-               };
-
-               ws.onmessage = function(evt) {
-                   var streamOutput = document.getElementById("streamOutput");
-
-                   try {
-                       var article = formatArticle(JSON.parse(evt.data));
-                       _buffer.unshift(article);
-                   } catch (error) {}
-
-                   if (_buffer.length > 25) {
-                       _buffer.pop();
-                   }
-
-                   streamOutput.innerHTML = "";
-                   streamOutput.appendChild(document.createTextNode(JSON.stringify(_buffer, null, 2)));
-
-                   document.getElementById("streamStatus").innerHTML = "status: online."
-               };
-
-               ws.onclose = function() {
-                   document.getElementById("streamStatus").innerHTML = "status: offline."
-               };
-           } else {
-               document.getElementById("streamOutput").innerHTML = "This browser does not support websocket."
-               document.getElementById("streamStatus").innerHTML = "status: offline."
-
-           }
-       }
-
-
-       function webSocketLookup(_buffer) {
-           if ("WebSocket" in window) {
-               // Let us open a web socket
-               var ws = new WebSocket("wss://api.newsriver.io/lookupWebSocket");
-               //var ws = new WebSocket("ws://localhost:8080/lookupWebSocket");
-
-               ws.onopen = function() {
-                   // Web Socket is connected, send data using send()
-                   _wsLookup = ws;
-                   setLookup();
-               };
-
-               ws.onmessage = function(evt) {
-                   var streamOutput = document.getElementById("lookupOutput");
-
-
-                   try {
-                       var article = formatArticle(JSON.parse(evt.data));
-                       _buffer.push(article);
-                   } catch (error) {
-                       _buffer.push(evt.data);
-                   }
-
-
-
-                   streamOutput.innerHTML = "";
-                   streamOutput.appendChild(document.createTextNode(JSON.stringify(_buffer, null, 2)));
-
-                   document.getElementById("lookupStatus").innerHTML = "status: online."
-               };
-
-               ws.onclose = function() {
-                   document.getElementById("lookupStatus").innerHTML = "status: offline."
-               };
-           } else {
-               document.getElementById("lookupOutput").innerHTML = "This browser does not support websocket."
-               document.getElementById("lookupStatus").innerHTML = "status: offline."
-
-           }
-       }
-
-       function formatArticle(json) {
-
-           try {
-               var article = {};
-               article['date'] = json.discoverDate;
-               article['url'] = json.url;
-               article['title'] = json.title;
-               article['publisher'] = {};
-               article['publisher']['hostName'] = json.website.hostName;
-               if (json.website.rankingGlobal != null) {
-                   article['publisher']['ranking'] = json.website.rankingGlobal;
-               }
-               if (json.website.description != null) {
-                   article['publisher']['description'] = json.website.description;
-               }
-               if (json.website.iconURL != null) {
-                   article['publisher']['favicon'] = json.website.iconURL;
-               }
-               if (json.website.canonicalURL != null) {
-                   article['publisher']['canonicalURL'] = json.website.canonicalURL;
-               }
-               article['abstract'] = json.text.substring(0, 100) + "...";
-               return article;
-           } catch (error) {
-               return null;
-           }
-       }
-
-
-       function signup() {
-           // Create our XMLHttpRequest object
-           var hr = new XMLHttpRequest();
-           // Create some variables we need to send to our PHP file
-           var email_form = document.getElementById("request-email").value;
-           var name_form = document.getElementById("request-name").value;
-           var password_form = document.getElementById("request-password").value;
-
-           var url = "https://api.newsriver.io/v2/user/sign-up?email=" + encodeURIComponent(email_form) + "&name=" + encodeURIComponent(name_form) + "&password=" + encodeURIComponent(password_form);
-           //var url = "http://localhost:8080/v2/user/sign-up?email=" + email_form+"&name="+name_form+"&password="+password_form;
-
-           hr.open("GET", url, true);
-           document.getElementById("request-button").firstChild.data = "sending...";
-           hr.onreadystatechange = function() {
-               if (hr.readyState == 4 && hr.status == 200) {
-                   window.location.replace("https://console.newsriver.io/register/" + hr.responseText);
-               }
-           }
-           hr.send();
-
-       }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        function setLookup() {
+            var url = document.getElementById("lookupURL").value;
+            _bufferLookup.splice(0, _bufferLookup.length);
+            if (_wsLookup != null) {
+                _wsLookup.send(url);
+            }
+
+        }
+
+        function loadSockets() {
+            webSocketStream(_bufferStream);
+            webSocketLookup(_bufferLookup);
+        }
+
+        function webSocketStream(_buffer) {
+
+            if ("WebSocket" in window) {
+                // Let us open a web socket
+                var ws = new WebSocket("wss://api.newsriver.io/streamWebSocket");
+                //var ws = new WebSocket("ws://localhost:8080/streamWebSocket");
+
+                ws.onopen = function() {
+                    // Web Socket is connected, send data using send()
+                    _wsStream = ws;
+                    setSearch();
+                };
+
+                ws.onmessage = function(evt) {
+                    var streamOutput = document.getElementById("streamOutput");
+
+                    try {
+                        var article = formatArticle(JSON.parse(evt.data));
+                        _buffer.unshift(article);
+                    } catch (error) {}
+
+                    if (_buffer.length > 25) {
+                        _buffer.pop();
+                    }
+
+                    streamOutput.innerHTML = "";
+                    streamOutput.appendChild(document.createTextNode(JSON.stringify(_buffer, null, 2)));
+
+                    document.getElementById("streamStatus").innerHTML = "status: online."
+                };
+
+                ws.onclose = function() {
+                    document.getElementById("streamStatus").innerHTML = "status: offline."
+                };
+            } else {
+                document.getElementById("streamOutput").innerHTML = "This browser does not support websocket."
+                document.getElementById("streamStatus").innerHTML = "status: offline."
+
+            }
+        }
+
+
+        function webSocketLookup(_buffer) {
+            if ("WebSocket" in window) {
+                // Let us open a web socket
+                var ws = new WebSocket("wss://api.newsriver.io/lookupWebSocket");
+                //var ws = new WebSocket("ws://localhost:8080/lookupWebSocket");
+
+                ws.onopen = function() {
+                    // Web Socket is connected, send data using send()
+                    _wsLookup = ws;
+                    setLookup();
+                };
+
+                ws.onmessage = function(evt) {
+                    var streamOutput = document.getElementById("lookupOutput");
+
+
+                    try {
+                        var article = formatArticle(JSON.parse(evt.data));
+                        _buffer.push(article);
+                    } catch (error) {
+                        _buffer.push(evt.data);
+                    }
+
+
+
+                    streamOutput.innerHTML = "";
+                    streamOutput.appendChild(document.createTextNode(JSON.stringify(_buffer, null, 2)));
+
+                    document.getElementById("lookupStatus").innerHTML = "status: online."
+                };
+
+                ws.onclose = function() {
+                    document.getElementById("lookupStatus").innerHTML = "status: offline."
+                };
+            } else {
+                document.getElementById("lookupOutput").innerHTML = "This browser does not support websocket."
+                document.getElementById("lookupStatus").innerHTML = "status: offline."
+
+            }
+        }
+
+        function formatArticle(json) {
+
+            try {
+                var article = {};
+                article['date'] = json.discoverDate;
+                article['url'] = json.url;
+                article['title'] = json.title;
+                article['publisher'] = {};
+                article['publisher']['hostName'] = json.website.hostName;
+                if (json.website.rankingGlobal != null) {
+                    article['publisher']['ranking'] = json.website.rankingGlobal;
+                }
+                if (json.website.description != null) {
+                    article['publisher']['description'] = json.website.description;
+                }
+                if (json.website.iconURL != null) {
+                    article['publisher']['favicon'] = json.website.iconURL;
+                }
+                if (json.website.canonicalURL != null) {
+                    article['publisher']['canonicalURL'] = json.website.canonicalURL;
+                }
+                article['abstract'] = json.text.substring(0, 100) + "...";
+                return article;
+            } catch (error) {
+                return null;
+            }
+        }
+
+
+        function signup() {
+            // Create our XMLHttpRequest object
+            var hr = new XMLHttpRequest();
+            // Create some variables we need to send to our PHP file
+            var email_form = document.getElementById("request-email").value;
+            var name_form = document.getElementById("request-name").value;
+            var password_form = document.getElementById("request-password").value;
+
+            var url = "https://api.newsriver.io/v2/user/sign-up?email=" + encodeURIComponent(email_form) + "&name=" + encodeURIComponent(name_form) + "&password=" + encodeURIComponent(password_form);
+            //var url = "http://localhost:8080/v2/user/sign-up?email=" + email_form+"&name="+name_form+"&password="+password_form;
+
+            hr.open("GET", url, true);
+            document.getElementById("request-button").firstChild.data = "sending...";
+            hr.onreadystatechange = function() {
+                if (hr.readyState == 4 && hr.status == 200) {
+                    window.location.replace("https://console.newsriver.io/auth/" + hr.responseText);
+                }
+            }
+            hr.send();
+
+        }
     </script>
 
     <script>
-       (function() {
-           var w = window;
-           var ic = w.Intercom;
-           if (typeof ic === "function") {
-               ic('reattach_activator');
-               ic('update', intercomSettings);
-           } else {
-               var d = document;
-               var i = function() {
-                   i.c(arguments)
-               };
-               i.q = [];
-               i.c = function(args) {
-                   i.q.push(args)
-               };
-               w.Intercom = i;
+        (function() {
+            var w = window;
+            var ic = w.Intercom;
+            if (typeof ic === "function") {
+                ic('reattach_activator');
+                ic('update', intercomSettings);
+            } else {
+                var d = document;
+                var i = function() {
+                    i.c(arguments)
+                };
+                i.q = [];
+                i.c = function(args) {
+                    i.q.push(args)
+                };
+                w.Intercom = i;
 
-               function l() {
-                   var s = d.createElement('script');
-                   s.type = 'text/javascript';
-                   s.async = true;
-                   s.src = 'https://widget.intercom.io/widget/{app_id}';
-                   var x = d.getElementsByTagName('script')[0];
-                   x.parentNode.insertBefore(s, x);
-               }
-               if (w.attachEvent) {
-                   w.attachEvent('onload', l);
-               } else {
-                   w.addEventListener('load', l, false);
-               }
-           }
-       })()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                function l() {
+                    var s = d.createElement('script');
+                    s.type = 'text/javascript';
+                    s.async = true;
+                    s.src = 'https://widget.intercom.io/widget/{app_id}';
+                    var x = d.getElementsByTagName('script')[0];
+                    x.parentNode.insertBefore(s, x);
+                }
+                if (w.attachEvent) {
+                    w.attachEvent('onload', l);
+                } else {
+                    w.addEventListener('load', l, false);
+                }
+            }
+        })()
     </script>
 
     <style>
-       .row {
-           margin: 0px;
-       }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        .row {
+            margin: 0px;
+        }
     </style>
 
 
@@ -379,363 +268,389 @@
 
 <body id="page-top" class="index" onload="loadSockets();">
 
-<!-- Navigation -->
-<nav class="navbar navbar-default navbar-fixed-top">
-    <div class="container">
-        <!-- Brand and toggle get grouped for better mobile display -->
-        <div class="navbar-header page-scroll">
-            <button type="button" class="navbar-toggle" data-toggle="collapse"
-                    data-target="#bs-example-navbar-collapse-1">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="#page-top">NewsRiver</a>
-        </div>
-
-        <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <ul class="nav navbar-nav navbar-right">
-                <li class="hidden">
-                    <a href="#page-top"></a>
-                </li>
-                <li class="page-scroll">
-                    <a href="#stream">News Stream</a>
-                </li>
-                <li class="page-scroll">
-                    <a href="#dashboard">News Dashboard</a>
-                </li>
-                <li class="page-scroll">
-                    <a href="#lookup">URL Lookup</a>
-                </li>
-                <li class="page-scroll">
-                    <a href="#contact">Contact</a>
-                </li>
-            </ul>
-        </div>
-        <!-- /.navbar-collapse -->
-    </div>
-    <!-- /.container-fluid -->
-</nav>
-
-<!-- Header -->
-<header>
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-6">
-                <div class="intro-text" style="margin-bottom:4rem;">
-                    <span class="name">NewsRiver</span>
-                    <hr>
-                    <span class="skills">A simple API streaming Structured News Articles.</span>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="intro-text">
-                    <div class="panel panel-default" style="color:black;  max-width:35rem; margin:auto;">
-                        <div class="panel-body" style="padding:2rem; padding-top:4rem; padding-bottom:4rem;">
-                            <h4 style="text-align:left; margin-bottom:2rem; color:#2c3e50;">Sign up <span
-                                    style="text-transform:lowercase;padding-left: 5px;font-weight: lighter;">for free</span>
-                            </h4>
-                            <div class="form-horizontal">
-                                <div class="form-group">
-                                    <div class="col-sm-12">
-                                        <input type="email" class="form-control" id="request-name" placeholder="Name">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <div class="col-sm-12">
-                                        <input type="email" class="form-control" id="request-email"
-                                               placeholder="E-mail">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <div class="col-sm-12">
-                                        <input type="password" class="form-control" id="request-password"
-                                               placeholder="Password">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <div class="col-sm-12">
-                                        <button type="submit" id="request-button" class="btn btn-success btn-lg"
-                                                style="width: 100%;" onclick="signup();">Get started
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</header>
-
-<!-- Live Stream -->
-<section class="success" id="stream" style="background-color: #233140;">
-    <div class="container" style="width: 100%; padding: 0px;">
-        <div class="row">
-            <div class="col-lg-offset-1 col-lg-5 col-md-6">
-                <div style="max-width: 1024px; margin:auto;">
-                    <h3>News Stream and Search</h3>
-                    <p style="font-weight:lighter;">Newsriver provides a WebSocket API for real-time access to freshly
-                        aggregated online news.</p>
-                    <h5 style="margin-top:30px">Filters</h5>
-                    <p style="font-weight:lighter;">Aggregated news articles can be filtered by properties such us:
-                        keywords, languages, categories, publishers, countries, etc.</p>
-                    <h5 style="margin-top:30px">Metadata</h5>
-                    <p style="font-weight:lighter;">Additional metadata information such sentiment analysis, publisher
-                        global ranking, social shares, related articles, etc. are associated to each crawled news.</p>
-                    <h5 style="margin-top:30px">Coverage</h5>
-                    <p style="font-weight:lighter;">Newsriver is crawling more than 500K daily news articles from
-                        thousands of online newspapers and blogs worldwide (excluded: Asia and Africa). For instance,
-                        all Alexa top news publishers are consistently indexed.</p>
-                </div>
-            </div>
-            <div class="col-lg-5 col-md-6">
-                <div style="margin: auto; max-width: 1024px;">
-                    <div style="background-color:white; border-top-left-radius: 3px;border-top-right-radius: 3px;height: 30px;">
-                        <img src="img/window-buttons.png" style="margin: 10px;"/></div>
-                    <div style="background-color:white; padding: 15px;  color: #3498db; font-weight: bolder;">
-
-                        <div class="form-group row">
-
-                            <div class="col-xs-9 col-ms-10 col-xl-11">
-                                <input type="text" class="form-control" id="serarchPhrase" placeholder="Search phrase"
-                                       value="Apple OR Microsoft OR Intel">
-                            </div>
-                            <button type="submit" class="col-xs-3 col-ms-2 col-xl-1 btn btn-primary"
-                                    onclick="setSearch();">Search
-                            </button>
-
-                        </div>
-
-
-                    </div>
-                    <div id="streamOutput"
-                         style="color:white; white-space: pre; font-family: monospace; background-color: #4f5a66; padding: 15px; padding-left: 35px; font-size: 12px; height: 500px; overflow:scroll;">
-                    </div>
-                    <div style="background-color:white; border-bottom-left-radius: 3px;border-bottom-right-radius: 3px;height: 30px;">
-                        <span id="streamStatus"
-                              style="color: #3498db; font-size: 13px; float: right; margin-right: 35px; line-height:30px;"></span>
-                    </div>
-                </div
-            </div>
-        </div>
-    </div>
-</section>
-
-
-<!-- Dashboard Stream -->
-<section id="dashboard" style="background-color: #334355; color:white">
-    <div class="container" style="width: 100%;">
-        <div class="row">
-            <div class="col-lg-offset-1 col-lg-5 col-md-6">
-                <div style="max-width: 1024px; margin:auto;">
-                    <div style="background-color:white; border-top-left-radius: 3px;border-top-right-radius: 3px;height: 30px;">
-                        <img src="img/window-buttons.png" style="margin: 10px;"/></div>
-                    <div style="background-color:white; padding: 15px; padding-left: 34px; color: #3498db; font-weight: bolder">
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-info btn-sm dropdown-toggle success"
-                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dashboard: NASDAQ
-                                <span class="caret"></span></button>
-                            <ul class="dropdown-menu">
-                                <!--<li><a href="#">Bluewin</a></li>-->
-                            </ul>
-                        </div>
-                    </div>
-                    <div style="background-color: #4f5a66;  height: 585px; overflow:scroll;">
-                        <iframe style="width: 100%; border: 0px; background-color: #4f5a66;"
-                                src="https://dashboard.newsriver.io/goto/f9a7a40737597d981eeeac413ddc10e4"
-                                height="580"></iframe>
-                    </div>
-                    <div style="background-color:white; border-bottom-left-radius: 3px;border-bottom-right-radius: 3px;height: 30px;"></div>
-                </div
-            </div>
-        </div>
-        <div class="col-lg-5 col-md-6">
-            <div style="max-width: 1024px; margin:auto;">
-                <h3>News Dashboard</h3>
-                <p style="font-weight:lighter;">Newsriver index allows time series analysis to extract useful insight
-                    from millions news articles.</p>
-                <h5 style="margin-top:30px">Big Data</h5>
-                <p style="font-weight:lighter;">Newsriver cluster is built to perform big data analysis in real-time
-                    thanks to advanced distributed technologies such us: Mesos, Marathon, Kafka, Spark, etc.</p>
-                <h5 style="margin-top:30px">Artificial Intelligence</h5>
-                <p style="font-weight:lighter;">Articles relevance is achieved via ad-hoc trained machine learning
-                    algorithms.</p>
-            </div>
-        </div>
-</section>
-
-<!-- URL lookup -->
-<section class="success" id="lookup" style="background-color: #233140;">
-    <div class="container" style="width: 100%; padding: 0px;">
-        <div class="row">
-            <div class="col-lg-offset-1 col-lg-5 col-md-6">
-                <div style="max-width: 1024px; margin:auto;">
-                    <h3>URL Lookup and content extraction</h3>
-                    <p style="font-weight:lighter;">Lookup articles URLs to retreive the main content and metadata
-                        informations</p>
-                    <h5 style="margin-top:30px">Main content</h5>
-                    <p style="font-weight:lighter;">Extracts article main content (e.g. title, text, images, etc.)</p>
-                    <h5 style="margin-top:30px">Metadata</h5>
-                    <p style="font-weight:lighter;">Additional metadata information such sentiment analysis, publisher
-                        global ranking, social shares, related articles, etc. are associated to each crawled news.</p>
-                </div>
-            </div>
-            <div class="col-lg-5 col-md-6">
-                <div style="margin: auto; max-width: 1024px;">
-                    <div style="background-color:white; border-top-left-radius: 3px;border-top-right-radius: 3px;height: 30px;">
-                        <img src="img/window-buttons.png" style="margin: 10px;"/></div>
-                    <div style="background-color:white; padding: 15px;  color: #3498db; font-weight: bolder;">
-
-                        <div class="form-group row">
-
-                            <div class="col-xs-9 col-ms-10 col-xl-11">
-                                <input type="text" class="form-control" id="lookupURL" placeholder="web URL"
-                                       value="http://www.samaa.tv/sports/2016/05/captaining-pakistan-is-not-like-walk-in-the-park-afridi/">
-                            </div>
-                            <button type="submit" class="col-xs-3 col-ms-2 col-xl-1 btn btn-primary"
-                                    onclick="setLookup();">Lookup
-                            </button>
-
-                        </div>
-
-                    </div>
-                    <div id="lookupOutput"
-                         style="color:white; white-space: pre; font-family: monospace; background-color: #4f5a66; padding: 15px; padding-left: 35px; font-size: 12px; height: 500px; overflow:scroll;">
-                    </div>
-                    <div style="background-color:white; border-bottom-left-radius: 3px;border-bottom-right-radius: 3px;height: 30px;">
-                        <span id="lookupStatus"
-                              style="color: #3498db; font-size: 13px; float: right; margin-right: 35px; line-height:30px;"></span>
-                    </div>
-                </div
-            </div>
-        </div>
-    </div>
-</section>
-
-
-<!-- Portfolio Grid Section -->
-<section id="api">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12 text-center">
-                <h2>Big Data and AI for News Intelligence</h2>
-                <hr class="star-primary">
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-4 portfolio-item">
-                <h5>News harvesting</h5>
-                <p>We harvest hundreds of thousand news articles a day, constantly scanning trough the most relevant
-                    online newspapers and blogs.</p>
-            </div>
-            <div class="col-sm-4 portfolio-item">
-                <h5>Structured data</h5>
-                <p>News content is extrapolated from unstructured websites HTML and converted into standardised
-                    structured JSON data.</p>
-            </div>
-            <div class="col-sm-4 portfolio-item">
-                <h5>Artificial Intelligence</h5>
-                <p>Machine learning algorithms are used to organize the massive amount of data by removing news
-                    duplicates and grouping news into specific topics.</p>
-            </div>
-            <div class="col-sm-4 portfolio-item">
-                <h5>Filtering and search</h5>
-                <p>Extensive search criteria can be defined to spot the right news articles.</p>
-            </div>
-            <div class="col-sm-4 portfolio-item">
-                <h5>Metadata</h5>
-                <p>Raw news articles information are enriched with metadata such us: sentiment analysis, social shares,
-                    etc.</p>
-            </div>
-            <div class="col-sm-4 portfolio-item">
-                <h5>Near realtime</h5>
-                <p>As soon as news articles matching filter criteria have been discovered, they are immediately
-                    dispatched.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- About Section -->
-<section class="success" id="about">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12 text-center">
-                <h2>About</h2>
-                <hr class="star-light">
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-4 col-lg-offset-2">
-                <p>Newsriver is the first API providing daily access to hundreds of thousand news article consistently
-                    harvested from The Internet and processed with cutting edge Artificial Intelligence technology.</p>
-            </div>
-            <div class="col-lg-4">
-                <p>A very simple REST API to define filters criteria combined to WebSockes to stream news article as
-                    JSON data to your infrastructure.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-
-<!-- Footer -->
-<footer class="text-center">
-    <div class="footer-above">
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-fixed-top">
         <div class="container">
-            <div class="row" id="contact">
-                <div class="footer-col col-md-12">
-                    <h3>Location</h3>
-                    <p>Via Maderno 24,Lugano
-                        <br/> Switzerland
-                    </p>
-                    <p><a href="mailto:support@newsriver.io">support@newsriver.io</a></p>
-                </div>
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#page-top">NewsRiver</a>
             </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="hidden">
+                        <a href="#page-top"></a>
+                    </li>
+                    <li class="page-scroll">
+                        <a href="#stream">News Search & Stream</a>
+                    </li>
+                    <li class="page-scroll">
+                        <a href="#pricing">Pricing</a>
+                    </li>
+                    <li class="page-scroll">
+                        <a href="#about">About</a>
+                    </li>
+                    <li class="page-scroll" style="background-color: #334355;">
+                        <a href="https://console.newsriver.io/auth/signin">Sign-in</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
         </div>
-    </div>
-    <div id='map'></div>
-    <div class="footer-below">
+        <!-- /.container-fluid -->
+    </nav>
+
+    <!-- Header -->
+    <header>
         <div class="container">
             <div class="row">
-                <div class="col-lg-12">
-                    Copyright &copy; NewsRiver.io 2016
+                <div class="col-lg-6">
+                    <div class="intro-text" style="margin-bottom:4rem;">
+                        <span class="name">NewsRiver</span>
+                        <hr>
+                        <span class="skills">A simple API to search News Articles or subscribe to News Streams.</span>
+                    </div>
+                </div>
+                <div class="col-lg-6" id="signup">
+                    <div class="intro-text">
+                        <div class="panel panel-default" style="color:black;  max-width:35rem; margin:auto;">
+                            <div class="panel-body" style="padding:2rem; padding-top:4rem; padding-bottom:4rem;">
+                                <h4 style="text-align:left; margin-bottom:2rem; color:#2c3e50;">Sign up <span
+                                    style="text-transform:lowercase;padding-left: 5px;font-weight: lighter;">for free</span>
+                            </h4>
+                                <div class="form-horizontal">
+                                    <div class="form-group">
+                                        <div class="col-sm-12">
+                                            <input type="email" class="form-control" id="request-name" placeholder="Name">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="col-sm-12">
+                                            <input type="email" class="form-control" id="request-email" placeholder="E-mail">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="col-sm-12">
+                                            <input type="password" class="form-control" id="request-password" placeholder="Password">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="col-sm-12">
+                                            <button type="submit" id="request-button" class="btn btn-success btn-lg" style="width: 100%;" onclick="signup();">Get started
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+    </header>
+
+    <!-- Live Stream -->
+    <section class="success" id="stream" style="background-color: #233140;">
+        <div class="container" style="width: 100%; padding: 0px;">
+            <div class="row">
+                <div class="col-lg-offset-1 col-lg-5 col-md-6">
+                    <div style="max-width: 1024px; margin:auto;">
+                        <h3>News Stream and Search</h3>
+                        <p style="font-weight:lighter;">Newsriver provides a WebSocket API for real-time access to freshly aggregated online news.</p>
+                        <h5 style="margin-top:30px">Filters</h5>
+                        <p style="font-weight:lighter;">Aggregated news articles can be filtered by properties such us: keywords, languages, categories, publishers, countries, etc.</p>
+                        <h5 style="margin-top:30px">Metadata</h5>
+                        <p style="font-weight:lighter;">Additional metadata information such sentiment analysis, publisher global ranking, social shares, related articles, etc. are associated to each crawled news.</p>
+                        <h5 style="margin-top:30px">Coverage</h5>
+                        <p style="font-weight:lighter;">Newsriver is crawling more than 500K daily news articles from thousands of online newspapers and blogs worldwide (excluded: Asia and Africa). For instance, all Alexa top news publishers are consistently indexed.</p>
+                    </div>
+                </div>
+                <div class="col-lg-5 col-md-6">
+                    <div style="margin: auto; max-width: 1024px;">
+                        <div style="background-color:white; border-top-left-radius: 3px;border-top-right-radius: 3px;height: 30px;">
+                            <img src="img/window-buttons.png" style="margin: 10px;" /></div>
+                        <div style="background-color:white; padding: 15px;  color: #3498db; font-weight: bolder;">
+
+                            <div class="form-group row">
+
+                                <div class="col-xs-9 col-ms-10 col-xl-11">
+                                    <input type="text" class="form-control" id="serarchPhrase" placeholder="Search phrase" value="Apple OR Microsoft OR Intel">
+                                </div>
+                                <button type="submit" class="col-xs-3 col-ms-2 col-xl-1 btn btn-primary" onclick="setSearch();">Search
+                                </button>
+
+                            </div>
+
+
+                        </div>
+                        <div id="streamOutput" style="color:white; white-space: pre; font-family: monospace; background-color: #4f5a66; padding: 15px; padding-left: 35px; font-size: 12px; height: 500px; overflow:scroll;">
+                        </div>
+                        <div style="background-color:white; border-bottom-left-radius: 3px;border-bottom-right-radius: 3px;height: 30px;">
+                            <span id="streamStatus" style="color: #3498db; font-size: 13px; float: right; margin-right: 35px; line-height:30px;"></span>
+                        </div>
+                    </div </div>
+                </div>
+            </div>
+    </section>
+
+
+    <!-- Dashboard Stream -->
+    <section id="dashboard" style="background-color: #334355; color:white">
+        <div class="container" style="width: 100%;">
+            <div class="row">
+                <div class="col-lg-offset-1 col-lg-5 col-md-6">
+                    <div style="max-width: 1024px; margin:auto;">
+                        <div style="background-color:white; border-top-left-radius: 3px;border-top-right-radius: 3px;height: 30px;">
+                            <img src="img/window-buttons.png" style="margin: 10px;" /></div>
+                        <div style="background-color:white; padding: 15px; padding-left: 34px; color: #3498db; font-weight: bolder">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-info btn-sm dropdown-toggle success" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dashboard: NASDAQ
+                                    <span class="caret"></span></button>
+                                <ul class="dropdown-menu">
+                                    <!--<li><a href="#">Bluewin</a></li>-->
+                                </ul>
+                            </div>
+                        </div>
+                        <div style="background-color: #4f5a66;  height: 585px; overflow:scroll;">
+                            <iframe style="width: 100%; border: 0px; background-color: #4f5a66;" src="https://dashboard.newsriver.io/goto/f9a7a40737597d981eeeac413ddc10e4" height="580"></iframe>
+                        </div>
+                        <div style="background-color:white; border-bottom-left-radius: 3px;border-bottom-right-radius: 3px;height: 30px;"></div>
+                    </div </div>
+                </div>
+                <div class="col-lg-5 col-md-6">
+                    <div style="max-width: 1024px; margin:auto;">
+                        <h3>News Dashboard</h3>
+                        <p style="font-weight:lighter;">Newsriver index allows time series analysis to extract useful insight from millions news articles.</p>
+                        <h5 style="margin-top:30px">Big Data</h5>
+                        <p style="font-weight:lighter;">Newsriver cluster is built to perform big data analysis in real-time thanks to advanced distributed technologies such us: Mesos, Marathon, Kafka, Spark, etc.</p>
+                        <h5 style="margin-top:30px">Artificial Intelligence</h5>
+                        <p style="font-weight:lighter;">Articles relevance is achieved via ad-hoc trained machine learning algorithms.
+                        </p>
+                    </div>
+                </div>
+    </section>
+
+    <!-- URL lookup -->
+    <!---
+        <section class="success" id="lookup" style="background-color: #233140;">
+        <div class="container" style="width: 100%; padding: 0px;">
+            <div class="row">
+                <div class="col-lg-offset-1 col-lg-5 col-md-6">
+                    <div style="max-width: 1024px; margin:auto;">
+                        <h3>URL Lookup and content extraction</h3>
+                        <p style="font-weight:lighter;">Lookup articles URLs to retreive the main content and metadata informations
+                        </p>
+                        <h5 style="margin-top:30px">Main content</h5>
+                        <p style="font-weight:lighter;">Extracts article main content (e.g. title, text, images, etc.)</p>
+                        <h5 style="margin-top:30px">Metadata</h5>
+                        <p style="font-weight:lighter;">Additional metadata information such sentiment analysis, publisher global ranking, social shares, related articles, etc. are associated to each crawled news.</p>
+                    </div>
+                </div>
+                <div class="col-lg-5 col-md-6">
+                    <div style="margin: auto; max-width: 1024px;">
+                        <div style="background-color:white; border-top-left-radius: 3px;border-top-right-radius: 3px;height: 30px;">
+                            <img src="img/window-buttons.png" style="margin: 10px;" /></div>
+                        <div style="background-color:white; padding: 15px;  color: #3498db; font-weight: bolder;">
+
+                            <div class="form-group row">
+
+                                <div class="col-xs-9 col-ms-10 col-xl-11">
+                                    <input type="text" class="form-control" id="lookupURL" placeholder="web URL" value="http://www.samaa.tv/sports/2016/05/captaining-pakistan-is-not-like-walk-in-the-park-afridi/">
+                                </div>
+                                <button type="submit" class="col-xs-3 col-ms-2 col-xl-1 btn btn-primary" onclick="setLookup();">Lookup
+                                </button>
+
+                            </div>
+
+                        </div>
+                        <div id="lookupOutput" style="color:white; white-space: pre; font-family: monospace; background-color: #4f5a66; padding: 15px; padding-left: 35px; font-size: 12px; height: 500px; overflow:scroll;">
+                        </div>
+                        <div style="background-color:white; border-bottom-left-radius: 3px;border-bottom-right-radius: 3px;height: 30px;">
+                            <span id="lookupStatus" style="color: #3498db; font-size: 13px; float: right; margin-right: 35px; line-height:30px;"></span>
+                        </div>
+                    </div </div>
+                </div>
+            </div>
+    </section>
+  -->
+
+
+
+
+    <!-- Portfolio Grid Section -->
+    <section id="api" class="success" style="background-color: #233140;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <h3>Big Data and AI for News Intelligence</h3>
+                    <hr class="star-primary">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4 portfolio-item">
+                    <h5>News harvesting</h5>
+                    <p>We harvest hundreds of thousand news articles a day, constantly scanning trough the most relevant online newspapers and blogs.</p>
+                </div>
+                <div class="col-sm-4 portfolio-item">
+                    <h5>Structured data</h5>
+                    <p>News content is extrapolated from unstructured websites HTML and converted into standardised structured JSON data.</p>
+                </div>
+                <div class="col-sm-4 portfolio-item">
+                    <h5>Artificial Intelligence</h5>
+                    <p>Machine learning algorithms are used to organize the massive amount of data by removing news duplicates and grouping news into specific topics.</p>
+                </div>
+                <div class="col-sm-4 portfolio-item">
+                    <h5>Filtering and search</h5>
+                    <p>Extensive search criteria can be defined to spot the right news articles.</p>
+                </div>
+                <div class="col-sm-4 portfolio-item">
+                    <h5>Metadata</h5>
+                    <p>Raw news articles information are enriched with metadata such us: sentiment analysis, social shares, etc.
+                    </p>
+                </div>
+                <div class="col-sm-4 portfolio-item">
+                    <h5>Near realtime</h5>
+                    <p>As soon as news articles matching filter criteria have been discovered, they are immediately dispatched.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Pricing -->
+
+    <section id="pricing">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <h3>Pricing</h3>
+                    <hr class="card-primary">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4 portfolio-item">
+                    <h5>Free</h5>
+                    <div style="margin-bottom: 0;padding-bottom: .5em;border-bottom: 1px solid #eee;">
+                        <label>0$ / month</label>
+                    </div>
+                    <p style="font-size: 16px;margin-top: 10px;">1K API calls / month</p>
+                    <p style="font-size: 16px;margin-top: 10px;">1 stream</p>
+                    <p style="font-size: 16px;margin-top: 10px;">10K articles / month</p>
+                    <p style="font-size: 16px;margin-top: 10px;">Best effort support</p>
+                    <p style="font-size: 16px;margin-top: 10px;">No SLA</p>
+                </div>
+                <div class=" col-sm-4 portfolio-item ">
+                    <h5>Business</h5>
+                    <div style="margin-bottom: 0;padding-bottom: .5em;border-bottom: 1px solid #eee;">
+                        <label>249$ / month</label>
+                    </div>
+                    <p style="font-size: 16px;margin-top: 10px;">100K API calls / month</p>
+                    <p style="font-size: 16px;margin-top: 10px;">3 streams</p>
+                    <p style="font-size: 16px;margin-top: 10px;">3 Mio articles / month</p>
+                    <p style="font-size: 16px;margin-top: 10px;">Support within 72h</p>
+                    <p style="font-size: 16px;margin-top: 10px;">Limited SLA</p>
+                </div>
+                <div class="col-sm-4 portfolio-item ">
+                    <h5>Enterprise</h5>
+                    <div style="margin-bottom: 0;padding-bottom: .5em;border-bottom: 1px solid #eee;">
+                        <label>contact us</label>
+                    </div>
+                    <p style="font-size: 16px;margin-top: 10px;">Unlimited API calls / month</p>
+                    <p style="font-size: 16px;margin-top: 10px;">Unlimited streams</p>
+                    <p style="font-size: 16px;margin-top: 10px;">Unlimited articles / month</p>
+                    <p style="font-size: 16px;margin-top: 10px;">Support within 24h</p>
+                    <p style="font-size: 16px;margin-top: 10px;">SLA</p>
+                </div>
+                <div class="col-sm-12">
+                    <a href="#signup" class="btn btn-success" style="display: block;max-width: 300px;margin: auto;margin-top: 40px;"><h5>Sign-Up for Free</h5></a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="success " id="about">
+        <div class="container ">
+            <div class="row ">
+                <div class="col-lg-12 text-center ">
+                    <h3>About</h3>
+                    <hr class="star-light ">
+                </div>
+            </div>
+            <div class="row ">
+                <div class="col-lg-4 col-lg-offset-2 ">
+                    <p>Newsriver is the first API providing daily access to hundreds of thousand news article consistently harvested from The Internet and processed with cutting edge Artificial Intelligence technology.</p>
+                </div>
+                <div class="col-lg-4 ">
+                    <p>A very simple REST API to define filters criteria combined to WebSockes to stream news article as JSON data to your infrastructure.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Footer -->
+    <footer class="text-center ">
+        <div class="footer-above ">
+            <div class="container ">
+                <div class="row " id="contact ">
+                    <div class="footer-col col-md-12 ">
+                        <h3>Location</h3>
+                        <p>Via Maderno 24,Lugano
+                            <br/> Switzerland
+                        </p>
+                        <p><a href="mailto:support@newsriver.io ">support@newsriver.io</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id='map'></div>
+        <div class="footer-below ">
+            <div class="container ">
+                <div class="row ">
+                    <div class="col-lg-12 ">
+                        Copyright &copy; NewsRiver.io 2016
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll to Top Button (Only visible on small and extra-small screen sizes) -->
+    <div class="scroll-top page-scroll visible-xs visible-sm ">
+        <a class="btn btn-primary " href="#page-top ">
+            <i class="fa fa-chevron-up "></i>
+        </a>
     </div>
-</footer>
-
-<!-- Scroll to Top Button (Only visible on small and extra-small screen sizes) -->
-<div class="scroll-top page-scroll visible-xs visible-sm">
-    <a class="btn btn-primary" href="#page-top">
-        <i class="fa fa-chevron-up"></i>
-    </a>
-</div>
 
 
-<!-- jQuery -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js "></script>
 
-<!-- Bootstrap Core JavaScript -->
-<script src="js/bootstrap.min.js"></script>
+    <!-- Bootstrap Core JavaScript -->
+    <script src="js/bootstrap.min.js "></script>
 
-<!-- Plugin JavaScript -->
-<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
-<script src="js/classie.js"></script>
-<script src="js/cbpAnimatedHeader.js"></script>
+    <!-- Plugin JavaScript -->
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js "></script>
+    <script src="js/classie.js "></script>
+    <script src="js/cbpAnimatedHeader.js "></script>
 
-<!-- Custom Theme JavaScript -->
-<script src="js/freelancer.js"></script>
+    <!-- Custom Theme JavaScript -->
+    <script src="js/freelancer.js "></script>
 
 
-<script src='https://maps.googleapis.com/maps/api/js?key=&sensor=false&extension=.js'></script>
+    <script src='https://maps.googleapis.com/maps/api/js?key=&sensor=false&extension=.js'></script>
 
-<script>
+    <script>
         google.maps.event.addDomListener(window, 'load', init);
         var map;
 
@@ -760,79 +675,79 @@
                 },
                 mapTypeId: google.maps.MapTypeId.ROADMAP,
                 styles: [{
-                    "featureType": "landscape",
-                    "stylers": [{
-                        "saturation": -100
+                    "featureType ": "landscape ",
+                    "stylers ": [{
+                        "saturation ": -100
                     }, {
-                        "lightness": 65
+                        "lightness ": 65
                     }, {
-                        "visibility": "on"
+                        "visibility ": "on "
                     }]
                 }, {
-                    "featureType": "poi",
-                    "stylers": [{
-                        "saturation": -100
+                    "featureType ": "poi ",
+                    "stylers ": [{
+                        "saturation ": -100
                     }, {
-                        "lightness": 51
+                        "lightness ": 51
                     }, {
-                        "visibility": "simplified"
+                        "visibility ": "simplified "
                     }]
                 }, {
-                    "featureType": "road.highway",
-                    "stylers": [{
-                        "saturation": -100
+                    "featureType ": "road.highway ",
+                    "stylers ": [{
+                        "saturation ": -100
                     }, {
-                        "visibility": "simplified"
+                        "visibility ": "simplified "
                     }]
                 }, {
-                    "featureType": "road.arterial",
-                    "stylers": [{
-                        "saturation": -100
+                    "featureType ": "road.arterial ",
+                    "stylers ": [{
+                        "saturation ": -100
                     }, {
-                        "lightness": 30
+                        "lightness ": 30
                     }, {
-                        "visibility": "on"
+                        "visibility ": "on "
                     }]
                 }, {
-                    "featureType": "road.local",
-                    "stylers": [{
-                        "saturation": -100
+                    "featureType ": "road.local ",
+                    "stylers ": [{
+                        "saturation ": -100
                     }, {
-                        "lightness": 40
+                        "lightness ": 40
                     }, {
-                        "visibility": "on"
+                        "visibility ": "on "
                     }]
                 }, {
-                    "featureType": "transit",
-                    "stylers": [{
-                        "saturation": -100
+                    "featureType ": "transit ",
+                    "stylers ": [{
+                        "saturation ": -100
                     }, {
-                        "visibility": "simplified"
+                        "visibility ": "simplified "
                     }]
                 }, {
-                    "featureType": "administrative.province",
-                    "stylers": [{
-                        "visibility": "off"
+                    "featureType ": "administrative.province ",
+                    "stylers ": [{
+                        "visibility ": "off "
                     }]
                 }, {
-                    "featureType": "water",
-                    "elementType": "labels",
-                    "stylers": [{
-                        "visibility": "on"
+                    "featureType ": "water ",
+                    "elementType ": "labels ",
+                    "stylers ": [{
+                        "visibility ": "on "
                     }, {
-                        "lightness": -25
+                        "lightness ": -25
                     }, {
-                        "saturation": -100
+                        "saturation ": -100
                     }]
                 }, {
-                    "featureType": "water",
-                    "elementType": "geometry",
-                    "stylers": [{
-                        "hue": "#ffff00"
+                    "featureType ": "water ",
+                    "elementType ": "geometry ",
+                    "stylers ": [{
+                        "hue ": "#ffff00 "
                     }, {
-                        "lightness": -25
+                        "lightness ": -25
                     }, {
-                        "saturation": -97
+                        "saturation ": -97
                     }]
                 }],
             }
@@ -881,37 +796,8 @@
             }
 
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</script>
-<style>
+    </script>
+    <style>
         #map {
             height: 400px;
             width: 100%px;
@@ -931,35 +817,13 @@
         .gm-style-iw a {
             color: #4272db;
         }
+    </style>
 
 
+</body>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+</html>
+}
 </style>
 
 
