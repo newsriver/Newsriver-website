@@ -9,13 +9,12 @@
     "type": "DOCKER",
     "volumes": [],
     "docker": {
-      "image": "docker-registry.newsriver.io:5000/newsriver-website:latest",
+      "image": "docker-registry-v2.newsriver.io:5000/newsriver-website:latest",
       "network": "BRIDGE",
       "portMappings": [
         {
           "containerPort": 80,
           "hostPort": 0,
-          "servicePort": 10008,
           "protocol": "tcp",
           "labels": {}
         }
@@ -41,5 +40,8 @@
     "HAPROXY_GROUP": "external",
     "HAPROXY_0_VHOST": "newsriver.io",
     "HAPROXY_0_REDIRECT_TO_HTTPS": "true"
-  }
+  },
+  "acceptedResourceRoles": [
+    "slave_public"
+  ]
 }
