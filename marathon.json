@@ -1,7 +1,7 @@
 {
   "id": "/newsriver/newsriver-website",
   "cmd": null,
-  "cpus": 0.5,
+  "cpus": 0.1,
   "mem": 256,
   "disk": 400,
   "instances": 1,
