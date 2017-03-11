@@ -154,6 +154,9 @@ header .intro-text .name {
     font-size: 2em;
     font-weight: 700;
 }
+header .intro-text .name img{
+    height: 35px;
+}
 
 header .intro-text .skills {
     font-size: 1.25em;
@@ -166,8 +169,12 @@ header .intro-text .skills {
         padding-bottom: 100px;
     }
 
+    header .intro-text .name img{
+        height: 75px;
+    }
+
     header .intro-text .name {
-        font-size: 4.75em;
+        font-size: 4.0em;
     }
 
     header .intro-text .skills {
