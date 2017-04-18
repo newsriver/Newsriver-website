@@ -5,11 +5,16 @@
   "mem": 256,
   "disk": 400,
   "instances": 1,
+  "fetch": [
+    {
+      "uri": "file:///etc/docker/docker-grc-auth.tar.gz"
+    }
+  ],
   "container": {
     "type": "DOCKER",
     "volumes": [],
     "docker": {
-      "image": "docker-registry-v2.newsriver.io:5000/newsriver-website:latest",
+      "image": "gcr.io/newsriver-io/newsriver-website:1",
       "network": "BRIDGE",
       "portMappings": [
         {
